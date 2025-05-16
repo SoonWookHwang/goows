@@ -1,3 +1,7 @@
+# docker volume
+mysql-data/
+redis-data/
+
 HELP.md
 .gradle
 build/
