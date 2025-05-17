@@ -50,7 +50,8 @@ public class SecurityConfig {
                             "/swagger-ui/**",
                             "/v3/api-docs/**",
                             "/h2-console/**",
-                            "/docs"
+                            "/docs",
+                            "/kafka/**"
                     ).permitAll()
                     .anyRequest().authenticated()
             )
