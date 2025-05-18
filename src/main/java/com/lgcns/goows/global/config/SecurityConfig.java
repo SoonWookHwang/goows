@@ -44,15 +44,16 @@ public class SecurityConfig {
                     .accessDeniedHandler(accessDeniedHandler)           // 403
             )
             .authorizeHttpRequests(auth -> auth
-                    .requestMatchers(
-                            "/members/register",
-                            "/members/login",
-                            "/swagger-ui/**",
-                            "/v3/api-docs/**",
-                            "/h2-console/**",
-                            "/docs"
-                    ).permitAll()
-                    .anyRequest().authenticated()
+                    // .requestMatchers(
+                    //         "/members/register",
+                    //         "/members/login",
+                    //         "/swagger-ui/**",
+                    //         "/v3/api-docs/**",
+                    //         "/h2-console/**",
+                    //         "/docs"
+                    // ).permitAll()
+                    // .anyRequest().authenticated()
+                    .anyRequest().permitAll()
             )
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
