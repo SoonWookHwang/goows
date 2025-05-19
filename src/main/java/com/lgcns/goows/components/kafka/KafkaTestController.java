@@ -1,10 +1,9 @@
 package com.lgcns.goows.components.kafka;
 
+import com.lgcns.goows.components.kafka.dto.NewsSearchSendDataDto;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/kafka")
@@ -15,15 +14,15 @@ public class KafkaTestController {
 
     private final String NEWS_SEARCH_TOPIC = "news_search_topic";
 
-    @PostMapping("/send")
-    public String send(@RequestParam String message) {
-        kafkaProducerService.sendMessage("dresses", message);
-        return "Sent: " + message;
-    }
+//    @PostMapping("/send")
+//    public String send(@RequestParam String message) {
+//        kafkaProducerService.sendMessage("dresses", message);
+//        return "Sent: " + message;
+//    }
 
     @PostMapping("/send/search/query")
-    public String sendNewsSearchKeyword(@RequestParam String searchKeyword){
+    public ResponseEntity<?> sendNewsSearchKeyword(@RequestBody NewsSearchSendDataDto searchKeyword){
         kafkaProducerService.sendMessage(NEWS_SEARCH_TOPIC, searchKeyword);
-        return "Sent news Query: " + searchKeyword;
+        return ResponseEntity.ok(searchKeyword);
     }
 }

@@ -40,6 +40,9 @@ out/
 ### VS Code ###
 .vscode/
 
-### properties ###
+### properties -> .env와 github action secret 처리로 대체###
 *.properties
-application.yml
+#application.yml
+
+### env ###
+.env
