@@ -111,7 +111,10 @@ spring:
 jwt:
   secret: testtesttesttesttesttesttesttest
 
-logging:
-  level:
-    org.hibernate.SQL: debug
-    org.hibernate.engine.jdbc.env.internal.JdbcEnvironmentInitiator: debug
+### properties -> .env와 github action secret 처리로 대체###
+*.properties
+#application.yml
+
+### env ###
+.env
+

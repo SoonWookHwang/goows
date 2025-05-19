@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class Member {
+public class Member extends TimeStamp{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long memberId;
