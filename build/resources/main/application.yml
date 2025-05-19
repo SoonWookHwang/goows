@@ -10,12 +10,12 @@ spring:
       on-profile: dev
   data:
     redis:
-      host: localhost
-      port: 6379
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
   datasource:
-    url: jdbc:mysql://localhost:3306/goows?useSSL=false&allowPublicKeyRetrieval=true
-    username: goows
-    password: goows
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
@@ -25,27 +25,31 @@ spring:
         dialect: org.hibernate.dialect.MySQL8Dialect
         format_sql: true
         show_sql: true
+  kafka:
+    bootstrap-servers: ${KAFKA_URL}
+    consumer:
+#      group-id: test-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+        #      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      #      value-serializer: org.apache.kafka.common.serialization.StringSerializer
 jwt:
-  secret: x4tX1Msf4QYA72Dsr3YkSp19nJDw6fNfzpdRtFTFEYc # dev? ??? ?
-  #  goowssecretkey hs256 ?? ?
-logging:
-  level:
-    org.hibernate.SQL: debug
-    org.hibernate.engine.jdbc.env.internal.JdbcEnvironmentInitiator: debug
+  secret: ${JWT_SECRET}
 springdoc:
   api-docs:
     path: /v3/api-docs
   swagger-ui:
-#    path: /swagger-ui.html
     path: /docs
   default-produces-media-type: application/json
-
 naver:
   api:
-    client_id: cP2S3qhKex1szo5gWypN
-    client_secret: EOAQDpIfwu
-    news-url: https://openapi.naver.com/v1/search/news.json
-
+    client_id: ${NAVER_CLIENT_ID}
+    client_secret: ${NAVER_SECRETKEY}
+    news-url: ${NAVER_URL}
 
 ---
 spring:
@@ -54,15 +58,35 @@ spring:
       on-profile: prod
   data:
     redis:
-      host: prod-redis.mydomain.com
-      port: 6379
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
   datasource:
-    url: jdbc:mysql://prod-mysql.mydomain.com:3306/goows
+    url: jdbc:mariadb://prod-mysql.mydomain.com:3306/goows
     username: goows_prod
     password: secure-prod-password
-    driver-class-name: com.mysql.cj.jdbc.Driver
+    driver-class-name: org.mariadb.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MariaDBDialect
+        format_sql: true
+        show_sql: false
+  kafka:
+    bootstrap-servers: ${KAFKA_URL}
+    consumer:
+#      group-id: test-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+#      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+#      value-serializer: org.apache.kafka.common.serialization.StringSerializer
 jwt:
-  secret: 0YEKLKn48dFgW52a0nKp9AxuU5NYjcT81U2ptZpUeQ4 # prod? ??? ?
+  secret: ${JWT_SECRET}
 
 
 ---
