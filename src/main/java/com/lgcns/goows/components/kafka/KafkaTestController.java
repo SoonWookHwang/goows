@@ -12,7 +12,7 @@ public class KafkaTestController {
 
     private final KafkaProducerService kafkaProducerService;
 
-    private final String NEWS_SEARCH_TOPIC = "news_search_topic";
+    private final String NEWS_SEARCH_TOPIC = "news-search-topic";
 
 //    @PostMapping("/send")
 //    public String send(@RequestParam String message) {

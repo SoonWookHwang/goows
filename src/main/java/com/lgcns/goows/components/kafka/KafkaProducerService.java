@@ -59,7 +59,6 @@ public class KafkaProducerService {
         }).exceptionally(ex -> {
             log.error("Kafka 메시지 전송 실패 | topic={}, message={}, error={}",
                     topic, message, ex.getMessage(), ex);
-
             if (retryCount < MAX_RETRIES) {
                 log.warn("🔁 Kafka 재시도 {}/{}...", retryCount + 1, MAX_RETRIES);
                 sendWithRetry(topic, message, retryCount + 1);

@@ -5,11 +5,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import com.lgcns.goows.components.kafka.KafkaProducerService;
+import com.lgcns.goows.components.kafka.dto.NewsSearchSendDataDto;
+import com.lgcns.goows.global.security.UserDetailsImpl;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -32,21 +36,19 @@ public class NewsService {
 
     private final MemberRepository memberRepository;
     private final NewsScapRepository newsScapRepository;
+    private final KafkaProducerService kafkaProducerService;
+    private final String NEWS_SEARCH_TOPIC = "news-search-topic";
     
     @Value("${naver.api.client-id}")
     String clientId;
-    // String clientId = "cP2S3qhKex1szo5gWypN";
 
     @Value("${naver.api.client-secret}")
     String clientSecret;
-    // String clientSecret = "EOAQDpIfwu";
 
     @Value("${naver.api.news-url}")
     String newsSearchUrl;
-    
-    // String newsSearchUrl = "https://openapi.naver.com/v1/search/news.json";
 
-    public Map<String, Object> searchNews(String query, Integer display, String sort) {
+    public Map<String, Object> searchNews(UserDetailsImpl userDetails, String query, Integer display, String sort) {
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         headers.set("X-Naver-Client-Id", clientId);
@@ -66,11 +68,27 @@ public class NewsService {
         String responesBody = responseEntity.getBody();
         ObjectMapper objectMapper = new ObjectMapper();
         try{
-            return objectMapper.readValue(responesBody, Map.class);
+            Map<String,Object> dataMap = objectMapper.readValue(responesBody, Map.class);
+            if(userDetails!=null){
+                dataMap.put("memberId", userDetails.getMember().getMemberId());
+            }else{
+                dataMap.put("memberId", 0);
+            }
+            dataMap.put("keyword", query);
+            // ✅ JSON 포맷으로 보기 좋게 출력
+            String prettyJson = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(dataMap);
+            log.info("🔍 dataMap (pretty):\n{}", prettyJson);
+            NewsSearchSendDataDto data = NewsSearchSendDataDto.builder().map(dataMap).build();
+            log.info("data: {}",data.toString());
+            kafkaProducerService.sendMessage(NEWS_SEARCH_TOPIC,data);
+            return dataMap;
         } catch(IOException e){
             //제이슨 파싱 실패 처리
             e.printStackTrace();
             return null; //또는 예외를 던지는 방식
+        } catch (Exception e){
+            e.printStackTrace();
+            return null;
         }
     }
 

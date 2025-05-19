@@ -26,7 +26,8 @@ spring:
         format_sql: true
         show_sql: true
   kafka:
-    bootstrap-servers: ${KAFKA_URL}
+#    bootstrap-servers: ${KAFKA_URL}
+    bootstrap-servers: 34.47.70.189:9092
     consumer:
 #      group-id: test-group
       auto-offset-reset: earliest

@@ -1,5 +1,8 @@
 package com.lgcns.goows.controller;
 
+import com.lgcns.goows.global.security.UserDetailsImpl;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.lgcns.goows.dto.NewsScrapRequestDto;
@@ -27,9 +30,9 @@ public class NewsController {
 
     private final NewsService newsService;
 
-      @GetMapping("/news")
-    public ResponseEntity<?> getNewsKeyword(@RequestParam("param") String keyword) {
-        return ResponseEntity.ok(SuccessResponse.success(newsService.searchNews(keyword, 10, "sim")));
+  @GetMapping("/news")
+    public ResponseEntity<?> getNewsKeyword(@RequestParam("param") String keyword,@AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return ResponseEntity.ok(SuccessResponse.success(newsService.searchNews(userDetails,keyword, 10, "sim")));
     }
 
     @PostMapping("/news/scrap")
