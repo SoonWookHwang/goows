@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class NewsScrap {
+public class NewsScrap extends TimeStamp{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long newsScrapId;
