@@ -46,6 +46,13 @@ springdoc:
     path: /docs
   default-produces-media-type: application/json
 
+naver:
+  api:
+    client_id: cP2S3qhKex1szo5gWypN
+    client_secret: EOAQDpIfwu
+    news-url: https://openapi.naver.com/v1/search/news.json
+
+
 ---
 spring:
   config:

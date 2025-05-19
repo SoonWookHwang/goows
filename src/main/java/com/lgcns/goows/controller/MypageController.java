@@ -18,36 +18,34 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/mypage")
+@RequestMapping("/mypage/modify")
 public class MypageController {
 
     private final MemberService memberService;
 
-    @PostMapping("/modify")
+    @PostMapping
     public ResponseEntity<?> postModifyMemberInfo(@AuthenticationPrincipal UserDetails userDetails,
-                                                    @RequestBody MemberModifyDto dto,
-                                                    @RequestParam("action") String action) {
+                                                @RequestBody MemberModifyDto dto) {
         try {
             // String username = userDetails.getUsername();
-            String username = "구스";
+            String username = "test"; // 임시 사용자명
 
-            if ("nickname".equals(action)) {
-                // 닉네임 변경 요청 시 비밀번호 관련 필드가 있으면 잘못된 요청으로 처리
-                if (dto.getCurrentPassword() != null || dto.getNewPassword() != null) {
-                    return ResponseEntity.badRequest().body("잘못된 요청입니다.");
-                }
+            boolean nicknameProvided = dto.getNickname() != null;
+            boolean passwordProvided = dto.getCurrentPassword() != null || dto.getNewPassword() != null;
+
+            if (nicknameProvided && !passwordProvided) {
+                // 닉네임 변경 요청
                 memberService.modifyMemberInfo(username, dto);
                 return ResponseEntity.ok("닉네임이 성공적으로 수정되었습니다.");
-            } else if ("password".equals(action)) {
-                // 비밀번호 변경 요청 시 닉네임 필드가 있으면 잘못된 요청으로 처리
-                if (dto.getNickname() != null) {
-                    return ResponseEntity.badRequest().body("잘못된 요청입니다: 비밀번호 변경 시에는 닉네임 정보를 포함할 수 없습니다.");
-                }
+            } else if (!nicknameProvided && passwordProvided) {
+                // 비밀번호 변경 요청
                 memberService.modifyMemberInfo(username, dto);
                 return ResponseEntity.ok("비밀번호가 성공적으로 수정되었습니다.");
             } else {
-                return ResponseEntity.badRequest().body("잘못된 요청입니다: 'action' 파라미터를 확인해주세요 (nickname 또는 password).");
+                // 잘못된 요청: 닉네임과 비밀번호 정보가 동시에 있거나, 둘 다 없는 경우
+                return ResponseEntity.badRequest().body("잘못된 요청입니다. 닉네임 또는 비밀번호 변경 정보 중 하나만 포함해주세요.");
             }
+
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("수정에 실패했습니다: " + e.getMessage());
         } catch (EntityNotFoundException e) {
