@@ -1,9 +1,9 @@
 package com.lgcns.goows.components.kafka;
 
-import com.lgcns.goows.components.kafka.dto.NewsSearchFetchDataDto;
+import com.lgcns.goows.components.kafka.dto.BaseKafkaMessage;
+import com.lgcns.goows.components.kafka.dto.NewsTop5Dto;
 import com.lgcns.goows.components.kafka.dto.NewsSearchSendDataDto;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
@@ -22,12 +22,44 @@ public class KafkaConsumerService {
 //    }
 
     @KafkaListener(
-            topics = "news_search_topic",
+            topics = "news-search-topic",
             groupId = "news-group",
-            containerFactory = "newsSearchKafkaListenerContainerFactory"
+            containerFactory = "kafkaBaseMessageListenerContainerFactory"
     )
-    public void listenNews(NewsSearchSendDataDto dto) {
-        log.info("listen call");
+    public void listenNews(BaseKafkaMessage message) {
+        if (message instanceof NewsSearchSendDataDto dto) {
+            log.info("🔹 Received SendData: {}", dto);
+        }
+    }
+//
+//
+//    @KafkaListener(
+//            topics = "top5-keywords",
+//            groupId = "news-group",
+//            containerFactory = "kafkaBaseMessageListenerContainerFactory"
+//    )
+//    public void listenTop5Keyword(BaseKafkaMessage message) {
+//        if (message instanceof NewsTop5Dto dto) {
+//            log.info("🔹 Received SendData: {}", dto);
+//        }
+//    }
+
+    @KafkaListener(
+            topics = "top5-keywords",
+            groupId = "news-group",
+            containerFactory = "stringKafkaListenerContainerFactory"
+    )
+    public void listenTop5Keyword(String message) {
+        log.info("🔹 Received SendData: {}", message);
+    }
+
+    @KafkaListener(
+            topics = "trending-keywords",
+            groupId = "news-group",
+            containerFactory = "kafkaBaseMessageListenerContainerFactory"
+    )
+    public void listenTrendingKeyword(NewsSearchSendDataDto dto) {
+        log.info("listenTop5Keyword call");
         System.out.println("🎯 수신된 메시지: " + dto);
     }
 }

@@ -14,7 +14,10 @@
         "KAFKA_URL": "localhost:9092",
         "JWT_SECRET": "x4tX1Msf4QYA72Dsr3YkSp19nJDw6fNfzpdRtFTFEYc",
         "REDIS_HOST": "localhost",
-        "REDIS_PORT": "6379"
+        "REDIS_PORT": "6379",
+        "NAVER_CLIENT_ID": "cP2S3qhKex1szo5gWypN",
+        "NAVER_SECRETKEY": "EOAQDpIfwu",
+        "NAVER_URL": "https://openapi.naver.com/v1/search/news.json"
       }
     }
   ]
