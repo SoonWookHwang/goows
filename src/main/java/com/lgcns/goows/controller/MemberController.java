@@ -18,6 +18,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 @RestController
 @RequiredArgsConstructor
@@ -83,5 +86,5 @@ public class MemberController {
         refreshTokenService.blacklistAccessToken(accessToken, remaining);
         return ResponseEntity.ok(SuccessResponse.success("로그아웃 되었습니다."));
     }
-
+    
 }
