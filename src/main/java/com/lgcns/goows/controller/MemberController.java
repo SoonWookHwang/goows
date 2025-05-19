@@ -83,5 +83,5 @@ public class MemberController {
         refreshTokenService.blacklistAccessToken(accessToken, remaining);
         return ResponseEntity.ok(SuccessResponse.success("로그아웃 되었습니다."));
     }
-
+    
 }

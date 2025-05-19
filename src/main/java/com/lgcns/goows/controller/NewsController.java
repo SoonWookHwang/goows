@@ -3,7 +3,7 @@ package com.lgcns.goows.controller;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.lgcns.goows.dto.NewsScrapRequestDto;
-import com.lgcns.goows.entity.Member;
+import com.lgcns.goows.global.common.SuccessResponse;
 import com.lgcns.goows.service.NewsService;
 
 import lombok.RequiredArgsConstructor;
@@ -13,8 +13,10 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 
 
 
@@ -24,6 +26,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 public class NewsController {
 
     private final NewsService newsService;
+
+      @GetMapping("/news")
+    public ResponseEntity<?> getNewsKeyword(@RequestParam("param") String keyword) {
+        return ResponseEntity.ok(SuccessResponse.success(newsService.searchNews(keyword, 10, "sim")));
+    }
 
     @PostMapping("/news/scrap")
     public ResponseEntity<String> postNewsScrap(@RequestBody List<NewsScrapRequestDto> dtos) {
