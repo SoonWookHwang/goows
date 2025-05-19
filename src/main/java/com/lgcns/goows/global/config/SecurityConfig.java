@@ -41,22 +41,20 @@ public class SecurityConfig {
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .exceptionHandling(exception -> exception
                     .authenticationEntryPoint(authenticationEntryPoint) // 401
-                    .accessDeniedHandler(accessDeniedHandler)           // 403
-            )
-            .authorizeHttpRequests(auth -> auth
-                    // .requestMatchers(
-                    //         "/members/register",
-                    //         "/members/login",
-                    //         "/swagger-ui/**",
-                    //         "/v3/api-docs/**",
-                    //         "/h2-console/**",
-                    //         "/docs"
-                    //         "/mypage/**"
-                    // ).permitAll()
-                    // .anyRequest().authenticated()
-                    .anyRequest().permitAll()
-            )
-            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                        .accessDeniedHandler(accessDeniedHandler) // 403
+                )
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(
+                                "/members/register",
+                                "/members/login",
+                                "/swagger-ui/**",
+                                "/v3/api-docs/**",
+                                "/h2-console/**",
+                                "/docs",
+                                "/kafka/**")
+                        .permitAll()
+                        .anyRequest().authenticated())
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
