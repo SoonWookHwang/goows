@@ -1,0 +1,98 @@
+spring:
+  application:
+    name: goows
+  profiles:
+    active: dev
+---
+spring:
+  config:
+    activate:
+      on-profile: dev
+  data:
+    redis:
+      host: localhost
+      port: 6379
+  datasource:
+    url: jdbc:mysql://localhost:3306/goows?useSSL=false&allowPublicKeyRetrieval=true
+    username: goows
+    password: goows
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+        format_sql: true
+        show_sql: true
+jwt:
+  secret: x4tX1Msf4QYA72Dsr3YkSp19nJDw6fNfzpdRtFTFEYc # dev? ??? ?
+  #  goowssecretkey hs256 ?? ?
+logging:
+  level:
+    org.hibernate.SQL: debug
+    org.hibernate.engine.jdbc.env.internal.JdbcEnvironmentInitiator: debug
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+#    path: /swagger-ui.html
+    path: /docs
+  default-produces-media-type: application/json
+
+naver:
+  api:
+    client_id: cP2S3qhKex1szo5gWypN
+    client_secret: EOAQDpIfwu
+    news-url: https://openapi.naver.com/v1/search/news.json
+
+
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+  data:
+    redis:
+      host: prod-redis.mydomain.com
+      port: 6379
+  datasource:
+    url: jdbc:mysql://prod-mysql.mydomain.com:3306/goows
+    username: goows_prod
+    password: secure-prod-password
+    driver-class-name: com.mysql.cj.jdbc.Driver
+jwt:
+  secret: 0YEKLKn48dFgW52a0nKp9AxuU5NYjcT81U2ptZpUeQ4 # prod? ??? ?
+
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: test
+  datasource:
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  h2:
+    console:
+      enabled: true         # ?? ?? ??
+      path: /h2-console     # ?? ?? (???: /h2-console)
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+        format_sql: true
+        show_sql: true
+
+jwt:
+  secret: testtesttesttesttesttesttesttest
+
+logging:
+  level:
+    org.hibernate.SQL: debug
+    org.hibernate.engine.jdbc.env.internal.JdbcEnvironmentInitiator: debug
