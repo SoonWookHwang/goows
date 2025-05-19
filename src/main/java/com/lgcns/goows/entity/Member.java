@@ -24,4 +24,14 @@ public class Member {
 
     @Enumerated(EnumType.STRING)
     private Role role;
+
+
+    public void modifyNickname(String nickname) {
+        this.nickname = nickname;
+    }
+
+    public void modifyPassword(String password) {
+        this.password = password;
+    }
 }
+

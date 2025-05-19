@@ -51,6 +51,7 @@ public class SecurityConfig {
                     //         "/v3/api-docs/**",
                     //         "/h2-console/**",
                     //         "/docs"
+                    //         "/mypage/**"
                     // ).permitAll()
                     // .anyRequest().authenticated()
                     .anyRequest().permitAll()
