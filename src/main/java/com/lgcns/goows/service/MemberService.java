@@ -50,4 +50,8 @@ public class MemberService {
             member.modifyPassword(passwordEncoder.encode(dto.getNewPassword()));
         }
     }
+
+    public Member getMemberByUsername(String username) {
+        return memberRepository.findByUsername(username).orElseThrow(() -> new CustomException("회원정보가 존재하지 않습니다"));
+    }
 }

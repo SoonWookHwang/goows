@@ -1,8 +1,8 @@
 package com.lgcns.goows.components.kafka;
 
-import com.lgcns.goows.components.kafka.dto.BaseKafkaMessage;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lgcns.goows.components.kafka.dto.NewsTop5Dto;
-import com.lgcns.goows.components.kafka.dto.NewsSearchSendDataDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
@@ -10,47 +10,16 @@ import org.springframework.stereotype.Service;
 @Service
 @Slf4j
 public class KafkaConsumerService {
-//
-//    @KafkaListener(topics = "dresses", groupId = "test-group")
-//    public void listen(ConsumerRecord<String, NewsSearchFetchDataDto> record) {
-//        System.out.println("Received message: " + record.value());
-//    }
-
-//    @KafkaListener(topics = "news_search_query", groupId = "news-group", containerFactory = "kafkaListenerContainerFactory")
-//    public void listen(NewsSearchFetchDataDto dto) {
-//        System.out.println("Received DTO: " + dto);
-//    }
-
-    @KafkaListener(
-            topics = "news-search-topic",
-            groupId = "news-group",
-            containerFactory = "kafkaBaseMessageListenerContainerFactory"
-    )
-    public void listenNews(BaseKafkaMessage message) {
-        if (message instanceof NewsSearchSendDataDto dto) {
-            log.info("🔹 Received SendData: {}", dto);
-        }
-    }
-//
-//
-//    @KafkaListener(
-//            topics = "top5-keywords",
-//            groupId = "news-group",
-//            containerFactory = "kafkaBaseMessageListenerContainerFactory"
-//    )
-//    public void listenTop5Keyword(BaseKafkaMessage message) {
-//        if (message instanceof NewsTop5Dto dto) {
-//            log.info("🔹 Received SendData: {}", dto);
-//        }
-//    }
-
     @KafkaListener(
             topics = "top5-keywords",
             groupId = "news-group",
             containerFactory = "stringKafkaListenerContainerFactory"
     )
-    public void listenTop5Keyword(String message) {
-        log.info("🔹 Received SendData: {}", message);
+    public void listenTop5Keyword(String message) throws JsonProcessingException {
+        log.info("🔹 Received top5: {}", message);
+        ObjectMapper mapper = new ObjectMapper();
+        NewsTop5Dto dto = mapper.readValue(message, NewsTop5Dto.class);
+        log.info("top5 listen value : {}", dto.toString());
     }
 
     @KafkaListener(
@@ -58,8 +27,8 @@ public class KafkaConsumerService {
             groupId = "news-group",
             containerFactory = "kafkaBaseMessageListenerContainerFactory"
     )
-    public void listenTrendingKeyword(NewsSearchSendDataDto dto) {
+    public void listenTrendingKeyword(String message) {
         log.info("listenTop5Keyword call");
-        System.out.println("🎯 수신된 메시지: " + dto);
+        log.info("🎯 수신된 메시지: " + message);
     }
 }

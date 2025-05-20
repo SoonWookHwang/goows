@@ -10,7 +10,7 @@ import java.util.Map;
 
 @Data
 @NoArgsConstructor
-public class NewsSearchSendDataDto extends BaseKafkaMessage {
+public class NewsSearchSendDataDto {
     private Long memberId;
     private String keyword;
     private List<NewsItemDto> newsList;

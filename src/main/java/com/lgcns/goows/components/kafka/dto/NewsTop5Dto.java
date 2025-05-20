@@ -5,15 +5,7 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class NewsTop5Dto extends BaseKafkaMessage {
+public class NewsTop5Dto {
     private Long memberId;
-    private String keyword;
-    private List<NewsSearchSendDataDto.NewsItemDto> newsList;
-
-    @Data
-    public static class NewsItemDto {
-        private String title;
-        private String description;
-        private String pubDate;
-    }
+    private List<String> top5;
 }

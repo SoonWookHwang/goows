@@ -1,9 +1,11 @@
 package com.lgcns.goows.global.security;
 
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -12,12 +14,13 @@ import java.security.Key;
 import java.util.Date;
 
 @Component
+@Slf4j
 public class JwtTokenProvider {
 
     @Value("${jwt.secret}")
     private String secretKey;
 
-    private final long accessTokenValidity = 1000 * 60 * 15 * 60; // 15분
+    private final long accessTokenValidity = 1000 * 30* 10000; // 15분
     private final long refreshTokenValidity = 1000 * 60 * 60 * 24 * 7; // 7일
 
     private Key getSigningKey() {
@@ -56,7 +59,11 @@ public class JwtTokenProvider {
                     .build()
                     .parseClaimsJws(token);
             return true;
+        } catch (ExpiredJwtException e) {
+            log.warn("JWT 만료됨: {}", e.getMessage());
+            return false;
         } catch (Exception e) {
+            log.error("JWT 유효성 검사 실패: {}", e.getMessage());
             return false;
         }
     }

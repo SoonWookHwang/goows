@@ -2,10 +2,13 @@ package com.lgcns.goows.controller;
 
 import com.lgcns.goows.dto.MemberLoginDto;
 import com.lgcns.goows.dto.MemberRegisterDto;
+import com.lgcns.goows.dto.MemberResponseDto;
 import com.lgcns.goows.dto.TokenRequestDto;
+import com.lgcns.goows.entity.Member;
 import com.lgcns.goows.global.common.SuccessResponse;
 import com.lgcns.goows.global.common.TokenResponse;
 import com.lgcns.goows.global.security.JwtTokenProvider;
+import com.lgcns.goows.mappers.MemberMapper;
 import com.lgcns.goows.service.MemberService;
 import com.lgcns.goows.service.RefreshTokenService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -18,6 +21,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -45,8 +51,14 @@ public class MemberController {
         String refreshToken = jwtTokenProvider.generateRefreshToken(dto.getUsername());
 
         refreshTokenService.saveRefreshToken(dto.getUsername(), refreshToken);
+        Member member = memberService.getMemberByUsername(dto.getUsername());
+        MemberResponseDto userInfo = MemberMapper.toMemberResponseDto(member);
 
-        return ResponseEntity.ok(SuccessResponse.success(new TokenResponse(accessToken, refreshToken)));
+        Map<String, Object> userInfoMap = new HashMap<>();
+        userInfoMap.put("userInfo", userInfo);
+        userInfoMap.put("tokenInfo", new TokenResponse(accessToken, refreshToken));
+
+        return ResponseEntity.ok(SuccessResponse.success(userInfoMap));
     }
 
     @PostMapping("/refresh")
