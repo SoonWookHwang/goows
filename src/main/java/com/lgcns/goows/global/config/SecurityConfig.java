@@ -11,6 +11,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
@@ -54,8 +55,14 @@ public class SecurityConfig {
                                 "/h2-console/**",
                                 "/news",
                                 "/docs",
-                                "/trending/keywords")
+                                "/trending/keywords",
+                                "/admin/login",
+                                "/admin/logout",
+                                "/admin/status")
                         .permitAll()
+                        .requestMatchers(
+                                "/admin/check","/admin/toggle-status"
+                        ).hasRole("ADMIN")
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
@@ -84,5 +91,15 @@ public class SecurityConfig {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
         return source;
+    }
+    @Bean
+    public WebSecurityCustomizer webSecurityCustomizer() {
+        return (web) -> web.ignoring().requestMatchers(
+                "/favicon.ico",
+                "/favicon-*.png",
+                "/site.webmanifest",
+                "/android-chrome-192x192.png",
+                "/static/**"
+        );
     }
 }
