@@ -9,5 +9,6 @@ public class NewsResponseDto {
         private String link;
         private String description;
         private String pubDate;
+        private String imageUrl="";
         private boolean isScraped;
 }

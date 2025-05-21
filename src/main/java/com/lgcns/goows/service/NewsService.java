@@ -9,6 +9,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.lgcns.goows.components.kafka.KafkaProducerService;
 import com.lgcns.goows.components.kafka.dto.NewsSearchSendDataDto;
+import com.lgcns.goows.components.naver.HtmlImageParser;
 import com.lgcns.goows.components.naver.NaverApiComponent;
 import com.lgcns.goows.dto.*;
 import com.lgcns.goows.global.exception.CustomException;
@@ -57,13 +58,16 @@ public class NewsService {
             result.setKeyword(dto.getKeyword());
 
             List<NewsResponseDto> list = result.getItems();
-            Member loginUser = userDetails.getMember();
-            list.stream().forEach(nrd->{
-                boolean isScraped = newsScapRepository
-                        .findByLinkAndOriginallinkAndMember(nrd.getLink(), nrd.getOriginallink(), loginUser)
-                        .isPresent();
-                nrd.setScraped(isScraped);
-            });
+            if(userDetails!=null) {
+                Member loginUser = userDetails.getMember();
+                list.stream().forEach(nrd -> {
+                    boolean isScraped = newsScapRepository
+                            .findByLinkAndOriginallinkAndMember(nrd.getLink(), nrd.getOriginallink(), loginUser)
+                            .isPresent();
+                    nrd.setScraped(isScraped);
+                    nrd.setImageUrl(HtmlImageParser.extractHtmlBodyAndImgSrc(nrd.getLink()));
+                });
+            }
 
             //// 검색 시 마다 검색 된 뉴스 리스트를 카프카 프로듀싱 ////
             String message = objectMapper.writeValueAsString(

@@ -54,7 +54,7 @@ public class SecurityConfig {
                                 "/h2-console/**",
                                 "/news",
                                 "/docs",
-                                "/kafka/**")
+                                "/trending/keywords")
                         .permitAll()
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

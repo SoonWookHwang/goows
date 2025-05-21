@@ -26,7 +26,7 @@ spring:
         format_sql: true
         show_sql: true
   kafka:
-    bootstrap-servers: ${KAFKA_LOCAL_URL}
+    bootstrap-servers: ${KAFKA_URL}
     consumer:
       auto-offset-reset: earliest
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer

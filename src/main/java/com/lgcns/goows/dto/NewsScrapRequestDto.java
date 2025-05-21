@@ -10,5 +10,6 @@ public class NewsScrapRequestDto {
     private String originallink;
     private String link;
     private String description;
+    private String imageUrl;
     private LocalDateTime pubdate;
 }

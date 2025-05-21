@@ -27,6 +27,7 @@ public class NewsScrap extends TimeStamp {
     private String link;
     private String description;
     private LocalDateTime pubdate;
+    private String imageUrl;
     private boolean isScrap;
 
     @ManyToOne
@@ -41,6 +42,7 @@ public class NewsScrap extends TimeStamp {
         this.link = dto.getLink();
         this.description = dto.getDescription();
         this.pubdate = dto.getPubdate();
+        this.imageUrl = dto.getImageUrl();
         this.member = member;
         this.isScrap = true;
     }
