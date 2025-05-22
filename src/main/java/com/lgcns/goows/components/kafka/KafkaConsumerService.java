@@ -43,9 +43,9 @@ public class KafkaConsumerService {
             containerFactory = "kafkaBaseMessageListenerContainerFactory"
     )
     public void listenTrendingKeyword(String message) throws JsonProcessingException {
-        log.info(message);
+//        log.info(message);
         TrendingFetchDto dto = parsingTrendingFetchDto(message);
-        log.info("🎯 수신된 메시지: " + dto.toString());
+//        log.info("🎯 수신된 메시지: " + dto.toString());
         kafkaService.saveTempData("trendingKeywords",dto,5000);
     }
 

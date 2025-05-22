@@ -31,7 +31,7 @@ public class NewsScrap extends TimeStamp {
     private boolean isScrap;
 
     @ManyToOne
-    @JoinColumn(name = "memberId")
+    @JoinColumn(name = "member_id")
     private Member member;
 
 

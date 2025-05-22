@@ -49,6 +49,7 @@ dependencies {
 
 /// mysql
     runtimeOnly 'com.mysql:mysql-connector-j'
+    implementation 'org.mariadb.jdbc:mariadb-java-client:3.1.4'
 
 /// 스웨거
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.2'

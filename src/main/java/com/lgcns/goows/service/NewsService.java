@@ -14,6 +14,7 @@ import com.lgcns.goows.components.naver.NaverApiComponent;
 import com.lgcns.goows.dto.*;
 import com.lgcns.goows.global.exception.CustomException;
 import com.lgcns.goows.global.security.UserDetailsImpl;
+import com.lgcns.goows.repository.MemberRecentlyKeywordRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -44,7 +45,9 @@ public class NewsService {
     private final NewsScapRepository newsScapRepository;
     private final KafkaProducerService kafkaProducerService;
     private final NaverApiComponent naverApiComponent;
+    private final MemberRecentlyKeywordService memberRecentlyKeywordService;
     private final String NEWS_SEARCH_TOPIC = "news-search-topic";
+    private final MemberRecentlyKeywordRepository memberRecentlyKeywordRepository;
 
     public NaverNewsResponseDto searchNews(UserDetailsImpl userDetails, NewsSearchDto dto){
         try {
@@ -67,6 +70,7 @@ public class NewsService {
                     nrd.setScraped(isScraped);
                     nrd.setImageUrl(HtmlImageParser.extractHtmlBodyAndImgSrc(nrd.getLink()));
                 });
+                memberRecentlyKeywordService.addRecentlyKeyword(userDetails,dto.getKeyword());
             }
 
             //// 검색 시 마다 검색 된 뉴스 리스트를 카프카 프로듀싱 ////

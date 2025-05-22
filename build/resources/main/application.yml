@@ -13,7 +13,7 @@ spring:
       host: ${REDIS_HOST}
       port: ${REDIS_PORT}
   datasource:
-    url: ${DB_URL}
+    url: ${DB_LOCAL_URL}
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -26,7 +26,7 @@ spring:
         format_sql: true
         show_sql: true
   kafka:
-    bootstrap-servers: ${KAFKA_URL}
+    bootstrap-servers: ${KAFKA_LOCAL_URL}
     consumer:
       auto-offset-reset: earliest
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
@@ -61,19 +61,19 @@ spring:
     url: ${DB_URL}
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
-    driver-class-name: com.mysql.cj.jdbc.Driver
+    driver-class-name: org.mariadb.jdbc.Driver
   jpa:
     hibernate:
       ddl-auto: update
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.MySQL8Dialect
+        dialect: org.hibernate.dialect.MariaDBDialect
         format_sql: true
-        show_sql: true
+        show_sql: false
   kafka:
     bootstrap-servers: ${KAFKA_URL}
     consumer:
-      auto-offset-reset: earliest
+      auto-offset-reset: latest
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
     producer:

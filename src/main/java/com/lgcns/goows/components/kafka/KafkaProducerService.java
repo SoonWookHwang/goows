@@ -23,10 +23,10 @@ public class KafkaProducerService {
     private void sendWithRetry(String topic, String message, int retryCount) {
         CompletableFuture<SendResult<String, String>> future = kafkaTemplate.send(topic, message);
         future.thenAccept(result -> {
-            log.info("Kafka 메시지 전송 성공 | topic={}, offset={}, message={}",
-                    result.getRecordMetadata().topic(),
-                    result.getRecordMetadata().offset(),
-                    message);
+//            log.info("Kafka 메시지 전송 성공 | topic={}, offset={}, message={}",
+//                    result.getRecordMetadata().topic(),
+//                    result.getRecordMetadata().offset(),
+//                    message);
         }).exceptionally(ex -> {
             log.error("Kafka 메시지 전송 실패 | topic={}, message={}, error={}",
                     topic, message, ex.getMessage(), ex);
