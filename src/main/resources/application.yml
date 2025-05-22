@@ -92,6 +92,14 @@ naver:
     client_id: ${NAVER_CLIENT_ID}
     client_secret: ${NAVER_SECRETKEY}
     news-url: ${NAVER_URL}
+server:
+  port: 443
+  ssl:
+    enabled: true
+    key-store: file:/home/ubuntu/goows/cert/keystore.p12
+    key-store-type: PKCS12
+    key-store-password: 1234
+    key-alias: tomcat
 
 
 ---

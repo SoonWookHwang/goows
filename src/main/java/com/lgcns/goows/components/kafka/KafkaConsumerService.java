@@ -26,7 +26,7 @@ public class KafkaConsumerService {
     private final TrendingRedisService kafkaService;
     @KafkaListener(
             topics = "top5-keywords",
-            groupId = "news-group",
+            groupId = "news-group2",
             containerFactory = "stringKafkaListenerContainerFactory"
     )
     public void listenTop5Keyword(String message) throws JsonProcessingException {
@@ -39,7 +39,7 @@ public class KafkaConsumerService {
 
     @KafkaListener(
             topics = "trending-keywords",
-            groupId = "news-group",
+            groupId = "news-group2",
             containerFactory = "kafkaBaseMessageListenerContainerFactory"
     )
     public void listenTrendingKeyword(String message) throws JsonProcessingException {
