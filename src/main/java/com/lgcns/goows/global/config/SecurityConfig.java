@@ -58,11 +58,12 @@ public class SecurityConfig {
                                 "/trending/keywords",
                                 "/admin/login",
                                 "/admin/logout",
-                                "/admin/status")
+                                "/admin/status",
+                                "/admin/members")
                         .permitAll()
                         .requestMatchers(
-                                "/admin/check","/admin/toggle-status"
-                        ).hasRole("ADMIN")
+                                "/admin/check", "/admin/toggle-status", "/members/updateStatus/**")
+                        .hasRole("ADMIN")
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
@@ -92,6 +93,7 @@ public class SecurityConfig {
         source.registerCorsConfiguration("/**", config);
         return source;
     }
+
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
         return (web) -> web.ignoring().requestMatchers(
@@ -99,7 +101,6 @@ public class SecurityConfig {
                 "/favicon-*.png",
                 "/site.webmanifest",
                 "/android-chrome-192x192.png",
-                "/static/**"
-        );
+                "/static/**");
     }
 }

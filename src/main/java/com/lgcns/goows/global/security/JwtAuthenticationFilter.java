@@ -1,5 +1,6 @@
 package com.lgcns.goows.global.security;
 
+import com.lgcns.goows.service.MemberService;
 import com.lgcns.goows.service.RefreshTokenService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -25,6 +26,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtTokenProvider jwtTokenProvider;
     private final UserDetailsServiceImpl userDetailsService;
     private final RefreshTokenService refreshTokenService;
+    private final MemberService memberService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -40,6 +42,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 response.setContentType(MediaType.APPLICATION_JSON_VALUE);
                 response.setCharacterEncoding("UTF-8");
                 response.getWriter().write("{\"status\":\"ERROR\",\"message\":\"로그아웃된 토큰입니다.\",\"data\":null}");
+                return;
+            }
+            if (!memberService.getMemberByUsername(jwtTokenProvider.getUsername(token)).isActive()){
+                response.setStatus(HttpStatus.UNAUTHORIZED.value());
+                response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+                response.setCharacterEncoding("UTF-8");
+                response.getWriter().write("{\"status\":\"ERROR\",\"message\":\"관리자에 의해 삭제처리된 계정입니다.\",\"data\":null}");
                 return;
             }
             String username = jwtTokenProvider.getUsername(token);

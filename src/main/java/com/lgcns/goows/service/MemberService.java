@@ -9,6 +9,9 @@ import com.lgcns.goows.repository.MemberRepository;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+
+import java.util.List;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,7 +26,9 @@ public class MemberService {
     @Transactional
     public void register(MemberRegisterDto dto) {
         memberRepository.findByUsername(dto.getUsername())
-                .ifPresent(user -> { throw new CustomException("이미 존재하는 회원입니다."); });
+                .ifPresent(user -> {
+                    throw new CustomException("이미 존재하는 회원입니다.");
+                });
         dto.setPassword(passwordEncoder.encode(dto.getPassword()));
         Member newMember = MemberMapper.toEntity(dto);
         memberRepository.save(newMember);
@@ -54,4 +59,6 @@ public class MemberService {
     public Member getMemberByUsername(String username) {
         return memberRepository.findByUsername(username).orElseThrow(() -> new CustomException("회원정보가 존재하지 않습니다"));
     }
+
+
 }

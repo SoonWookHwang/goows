@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Members</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        /* 활성화/비활성화 상태 텍스트 스타일 */
+        .status-active {
+            color: green;
+            font-weight: bold;
+        }
+
+        .status-inactive {
+            color: red;
+            font-weight: bold;
+        }
+
+        /* 회원 수 정보 스타일 */
+        .member-summary {
+            margin-bottom: 15px;
+            padding: 10px;
+            border: 1px solid #eee;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+        }
+
+        .member-summary p {
+            margin: 5px 0;
+            font-size: 1.1em;
+        }
+
+        .member-summary strong {
+            color: #333;
+        }
+
+        /* 메시지 표시 영역 스타일 */
+        #statusMessage {
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            display: none;
+            /* 초기에는 숨김 */
+        }
+
+        .message-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .message-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+    
+</head>
+
+<body>
+    <h1>전체 회원 목록</h1>
+
+    <div id="statusMessage"></div>
+
+    <div class="member-summary">
+        <p><strong>전체 회원 수:</strong> <span id="totalMemberCount" th:text="${totalMemberCount}">0</span>명</p>
+        <p><strong>활성 회원 수:</strong> <span id="activeMemberCount" th:text="${activeMemberCount}">0</span>명</p>
+        <p><strong>비활성 회원 수:</strong> <span id="inactiveMemberCount" th:text="${inactiveMemberCount}">0</span>명</p>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>USERNAME</th>
+                <th>NICKNAME</th>
+                <!-- <th>PASSWORD</th> -->
+                <th>가입일</th>
+                <th>수정일</th>
+                <th>권한</th>
+                <th>상태</th>
+                <th>비활성화 여부 (체크 시 비활성화)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="member : ${members}">
+                <td th:text="${member.memberId}"></td>
+                <td th:text="${member.username}"></td>
+                <td th:text="${member.nickname}"></td>
+                <!-- <td th:text="${member.password}"></td> -->
+                <td th:text="${member.createdAt}"></td>
+                <td th:text="${member.updatedAt}"></td>
+                <td th:text="${member.role}"></td>
+                <td>
+                    <span th:id="${'memberStatus-' + member.memberId}"
+                        th:class="${member.isActive ? 'status-active' : 'status-inactive'}"
+                        th:text="${member.isActive ? '활성화' : '비활성화'}"></span>
+                </td>
+                <td>
+                    <form th:id="${'memberForm_' + member.memberId}"
+                        th:action="@{|/admin/members/updateStatus/${member.memberId}|}" method="post">
+                        <input type="checkbox" name="isInactive" th:id="${'isInactive_' + member.memberId}"
+                            th:checked="${!member.isActive}" value="true" th:data-member-id="${member.memberId}"
+                            th:data-member-username="${member.username}" onchange="handleCheckboxChange(this);"> <label
+                            th:for="${'isInactive_' + member.memberId}">비활성화</label>
+                    </form>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(members)}">
+                <td colspan="9">등록된 회원이 없습니다.</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <p><a href="/admin">어드민 홈으로 돌아가기</a></p>
+
+    <script th:inline="javascript">
+
+        // 페이지 로드 시 관리자 권한 확인
+        document.addEventListener("DOMContentLoaded", () => {
+            isAdminCheck();
+        });
+
+        // 회원 상태 변경 처리 함수 (fetch API 사용)
+        async function handleCheckboxChange(checkbox) {
+            const memberId = checkbox.getAttribute('data-member-id');
+            const memberUsername = checkbox.getAttribute('data-member-username');
+            const newIsInactiveState = checkbox.checked; // 체크박스 클릭 후의 새로운 상태
+
+            let confirmMessage = "";
+            let newStatusText = "";
+
+            if (newIsInactiveState) {
+                confirmMessage = `회원 [${memberUsername}] (ID: ${memberId}) 님을 정말로 비활성화하시겠습니까?`;
+                newStatusText = "비활성화";
+            } else {
+                confirmMessage = `회원 [${memberUsername}] (ID: ${memberId}) 님을 정말로 활성화하시겠습니까?`;
+                newStatusText = "활성화";
+            }
+
+            const statusMessageDiv = document.getElementById('statusMessage');
+
+            // 사용자에게 확인 메시지를 띄웁니다.
+            if (confirm(confirmMessage)) {
+                const url = `/admin/members/updateStatus/${memberId}`;
+
+                try {
+                    const headers = {
+                        'Content-Type': 'application/json' // JSON 형식으로 데이터를 보냄을 명시
+                    };
+
+                    // ✅ Authorization 헤더 추가 (localStorage에서 토큰 가져오기)
+                    const accessToken = localStorage.getItem("accessToken");
+                    if (accessToken) {
+                        headers["Authorization"] = `Bearer ${accessToken}`;
+                    }
+              
+
+                    const res = await fetch(url, {
+                        method: "POST",
+                        headers: headers,
+                        body: JSON.stringify({ isInactive: newIsInactiveState }) // JSON 본문으로 전송
+                    });
+
+                    // 응답 처리: JSON이 아닐 경우 대비 (HTML 에러 페이지 등)
+                    const contentType = res.headers.get("content-type");
+                    let data;
+                    if (contentType && contentType.includes("application/json")) {
+                        data = await res.json();
+                    } else {
+                        const text = await res.text();
+                        data = { message: `서버 오류 발생: ${res.status} ${res.statusText}. 응답: ${text.substring(0, Math.min(text.length, 200))}...` };
+                    }
+
+                    if (res.ok) { // HTTP 상태 코드가 2xx인 경우 (성공)
+                        const memberStatusSpan = document.getElementById(`memberStatus-${memberId}`);
+                        memberStatusSpan.textContent = newStatusText;
+                        memberStatusSpan.className = newIsInactiveState ? 'status-inactive' : 'status-active';
+
+                        statusMessageDiv.className = 'message-success';
+                        statusMessageDiv.textContent = data.message || `회원 ${memberUsername} 상태가 성공적으로 ${newStatusText}되었습니다.`;
+                        statusMessageDiv.style.display = 'block'; // 메시지 표시
+
+                        // 회원 수 통계 업데이트 (선택 사항)
+                        // updateMemberCounts();
+
+                    } else { // HTTP 상태 코드가 2xx가 아닌 경우 (에러)
+                        statusMessageDiv.className = 'message-error';
+                        statusMessageDiv.textContent = data.message || "회원 상태 변경에 실패했습니다.";
+                        console.error("Error updating member status:", data);
+                        statusMessageDiv.style.display = 'block'; // 메시지 표시
+
+                        // 401 Unauthorized 또는 403 Forbidden 같은 경우 로그인 페이지로 리다이렉트
+                        if (res.status === 401 || res.status === 403) {
+                            alert("권한이 없거나 세션이 만료되었습니다. 로그인 페이지로 이동합니다.");
+                            window.location.href = "/admin/login";
+                        }
+                        // 실패 시 체크박스 상태 원상복구
+                        checkbox.checked = !newIsInactiveState;
+                    }
+                } catch (err) {
+                    statusMessageDiv.className = 'message-error';
+                    statusMessageDiv.textContent = "네트워크 오류 또는 예상치 못한 오류가 발생했습니다: " + err.message;
+                    console.error("Fetch error:", err);
+                    statusMessageDiv.style.display = 'block'; // 메시지 표시
+                    // 실패 시 체크박스 상태 원상복구
+                    checkbox.checked = !newIsInactiveState;
+                }
+
+            } else {
+                // 사용자가 '취소'를 누르면 체크박스 상태를 원래대로 되돌립니다.
+                checkbox.checked = !newIsInactiveState;
+            }
+        }
+
+        // 회원 수 업데이트 함수 (비동기 요청)
+        async function updateMemberCounts() {
+            try {
+                // ✅ /admin/members/counts 엔드포인트로 변경
+                const url = "/admin/members/counts";
+                const headers = {};
+                const accessToken = localStorage.getItem("accessToken");
+                if (accessToken) {
+                    headers["Authorization"] = `Bearer ${accessToken}`;
+                }
+                // GET 요청이므로 CSRF 헤더는 일반적으로 필요 없습니다.
+
+                const res = await fetch(url, { headers: headers });
+                if (res.ok) {
+                    const counts = await res.json();
+                    document.getElementById('totalMemberCount').textContent = counts.totalMemberCount;
+                    document.getElementById('activeMemberCount').textContent = counts.activeMemberCount;
+                    document.getElementById('inactiveMemberCount').textContent = counts.inactiveMemberCount;
+                } else {
+                    console.error("Failed to fetch member counts:", await res.json());
+                }
+            } catch (err) {
+                console.error("Error fetching member counts:", err);
+            }
+        }
+
+        // 관리자 권한 확인 함수 (페이지 로드 시 실행)
+        const isAdminCheck = async () => {
+            console.log("check admin");
+            try {
+                const accessToken = localStorage.getItem("accessToken");
+                const headers = {};
+                if (accessToken) {
+                    headers["Authorization"] = `Bearer ${accessToken}`;
+                }
+
+                const res = await fetch("/admin/check", { headers: headers });
+
+                if (res.status === 403) {
+                    alert("관리자만 접근 가능합니다.");
+                    window.location.href = "/admin/login";
+                    return;
+                }
+                if (res.status === 401) {
+                    alert("인증 정보가 없거나 만료되었습니다. 로그인 페이지로 이동합니다.");
+                    window.location.href = "/admin/login";
+                    return;
+                }
+
+                const data = await res.json();
+                console.log("관리자 확인:", data.message);
+            } catch (err) {
+                alert("접근 권한 확인 중 오류가 발생했습니다.");
+                // window.location.href = "/admin"; // 또는 적절한 에러 페이지로 리다이렉트
+            }
+        };
+    </script>
+</body>
+
+</html>
