@@ -1,0 +1,24 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "java",
+      "name": "Spring Boot - Run",
+      "request": "launch",
+      "mainClass": "com.lgcns.goows.GoowsApplication",
+      "projectName": "goows",
+      "env": {
+        "DB_LOCAL_URL": "jdbc:mysql://localhost:3306/goows",
+        "DB_USERNAME": "goows",
+        "DB_PASSWORD": "goows",
+        "KAFKA_LOCAL_URL": "localhost:9092",
+        "JWT_SECRET": "x4tX1Msf4QYA72Dsr3YkSp19nJDw6fNfzpdRtFTFEYc",
+        "REDIS_HOST": "localhost",
+        "REDIS_PORT": "6379",
+        "NAVER_CLIENT_ID": "cP2S3qhKex1szo5gWypN",
+        "NAVER_SECRETKEY": "EOAQDpIfwu",
+        "NAVER_URL": "https://openapi.naver.com/v1/search/news.json"
+      }
+    }
+  ]
+}

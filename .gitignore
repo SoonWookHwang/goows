@@ -1,9 +1,13 @@
+# docker volume
+mysql-data/
+redis-data/
+
 HELP.md
 .gradle
 build/
 !gradle/wrapper/gradle-wrapper.jar
-!**/src/main/**/build/
-!**/src/test/**/build/
+#!**/src/main/**/build/
+#!**/src/test/**/build/
 
 ### STS ###
 .apt_generated
@@ -36,6 +40,9 @@ out/
 ### VS Code ###
 .vscode/
 
-### properties ###
+### properties -> .env와 github action secret 처리로 대체###
 *.properties
-*.yml
+#application.yml
+
+### env ###
+.env

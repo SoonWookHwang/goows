@@ -1,6 +1,7 @@
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '3.4.5'
+//    id 'org.springframework.boot' version '3.4.5' 스웨거 호환 문제로 다운그레이드
+    id 'org.springframework.boot' version '3.3.6'
     id 'io.spring.dependency-management' version '1.1.7'
 }
 
@@ -25,21 +26,45 @@ repositories {
 
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-//    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    implementation 'redis.clients:jedis'
     implementation 'org.springframework.boot:spring-boot-starter-security'
-    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-web'
-//    implementation 'org.springframework.kafka:spring-kafka'
+    implementation 'org.springframework.kafka:spring-kafka'
+/// 어드민 페이지용 타임리프
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
     implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
+    implementation 'nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect:3.2.0'
+
+/// JWT 관련
+    implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
+/// 롬복
     compileOnly 'org.projectlombok:lombok'
+
+/// test 용 h2 database
     runtimeOnly 'com.h2database:h2'
+
+/// mysql
     runtimeOnly 'com.mysql:mysql-connector-j'
+    implementation 'org.mariadb.jdbc:mariadb-java-client:3.1.4'
+
+/// 스웨거
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.2'
+
+/// html 파싱용 jsoup
+    implementation 'org.jsoup:jsoup:1.17.2'
+
+    implementation 'org.mariadb.jdbc:mariadb-java-client:3.3.1'
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
-//    testImplementation 'org.springframework.kafka:spring-kafka-test'
+    testImplementation 'org.springframework.kafka:spring-kafka-test'
     testImplementation 'org.springframework.security:spring-security-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+
 }
 
 tasks.named('test') {
