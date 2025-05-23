@@ -30,11 +30,11 @@ public class KafkaConsumerService {
             containerFactory = "stringKafkaListenerContainerFactory"
     )
     public void listenTop5Keyword(String message) throws JsonProcessingException {
-        log.info("🔹 Received top5: {}", message);
+//        log.info("🔹 Received top5: {}", message);
         ObjectMapper mapper = new ObjectMapper();
         NewsTop5Dto dto = mapper.readValue(message, NewsTop5Dto.class);
         memberKeywordService.saveTop5Keyword(dto);
-        log.info("top5 listen value : {}", dto.toString());
+//        log.info("top5 listen value : {}", dto.toString());
     }
 
     @KafkaListener(
@@ -45,7 +45,7 @@ public class KafkaConsumerService {
     public void listenTrendingKeyword(String message) throws JsonProcessingException {
 //        log.info(message);
         TrendingFetchDto dto = parsingTrendingFetchDto(message);
-//        log.info("🎯 수신된 메시지: " + dto.toString());
+        log.info("🎯 수신된 메시지: " + dto.toString());
         kafkaService.saveTempData("trendingKeywords",dto,5000);
     }
 

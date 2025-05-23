@@ -22,20 +22,22 @@ public class MemberKeywordService {
 
     @Transactional
     public void saveTop5Keyword(NewsTop5Dto dto){
-        List<MemberKeyword> top5keyword = memberKeywordRepository.findAllByMember_MemberId(dto.getMemberId());
-        Member tempMember = Member.builder()
-                .memberId(dto.getMemberId())
-                .nickname("")
-                .role(Role.ROLE_USER).username("").password("").build();
-        List<MemberKeyword> saveList = new ArrayList<>();
-        if(!top5keyword.isEmpty()){
-            log.info("기존 저장된 데이터 있음");
-            memberKeywordRepository.deleteAll(top5keyword);
+        if(dto.getMemberId()!=0) {
+            List<MemberKeyword> top5keyword = memberKeywordRepository.findAllByMember_MemberId(dto.getMemberId());
+            Member tempMember = Member.builder()
+                    .memberId(dto.getMemberId())
+                    .nickname("")
+                    .role(Role.ROLE_USER).username("").password("").build();
+            List<MemberKeyword> saveList = new ArrayList<>();
+            if (!top5keyword.isEmpty()) {
+                log.info("기존 저장된 데이터 있음");
+                memberKeywordRepository.deleteAll(top5keyword);
+            }
+            saveList = dto.getTop5().stream().map(keyword -> MemberKeyword.toEntity(keyword, tempMember)).toList();
+            List<MemberKeyword> newEntity = memberKeywordRepository.saveAll(saveList);
+            log.info("새로 저장된 top5: {}", newEntity.toString());
+            log.info("top5 keyword 저장완료");
         }
-        saveList = dto.getTop5().stream().map(keyword-> MemberKeyword.toEntity(keyword,tempMember)).toList();
-        List<MemberKeyword> newEntity = memberKeywordRepository.saveAll(saveList);
-        log.info("새로 저장된 top5: {}", newEntity.toString());
-        log.info("top5 keyword 저장완료");
     }
 
     public List<String> getTop5Keyword(UserDetailsImpl userDetails){
