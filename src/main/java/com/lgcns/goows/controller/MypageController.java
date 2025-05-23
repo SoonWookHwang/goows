@@ -27,8 +27,7 @@ public class MypageController {
     public ResponseEntity<?> postModifyMemberInfo(@AuthenticationPrincipal UserDetails userDetails,
                                                 @RequestBody MemberModifyDto dto) {
         try {
-            // String username = userDetails.getUsername();
-            String username = "test"; // 임시 사용자명
+            String username = userDetails.getUsername();
 
             boolean nicknameProvided = dto.getNickname() != null;
             boolean passwordProvided = dto.getCurrentPassword() != null || dto.getNewPassword() != null;
@@ -36,16 +35,14 @@ public class MypageController {
             if (nicknameProvided && !passwordProvided) {
                 // 닉네임 변경 요청
                 memberService.modifyMemberInfo(username, dto);
-                return ResponseEntity.ok("닉네임이 성공적으로 수정되었습니다.");
             } else if (!nicknameProvided && passwordProvided) {
                 // 비밀번호 변경 요청
                 memberService.modifyMemberInfo(username, dto);
-                return ResponseEntity.ok("비밀번호가 성공적으로 수정되었습니다.");
             } else {
                 // 잘못된 요청: 닉네임과 비밀번호 정보가 동시에 있거나, 둘 다 없는 경우
                 return ResponseEntity.badRequest().body("잘못된 요청입니다. 닉네임 또는 비밀번호 변경 정보 중 하나만 포함해주세요.");
             }
-
+            return ResponseEntity.ok("정보가 성공적으로 수정되었습니다.");
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("수정에 실패했습니다: " + e.getMessage());
         } catch (EntityNotFoundException e) {

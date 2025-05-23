@@ -60,4 +60,5 @@ public class MemberService {
         return memberRepository.findByUsername(username).orElseThrow(() -> new CustomException("회원정보가 존재하지 않습니다"));
     }
 
+
 }

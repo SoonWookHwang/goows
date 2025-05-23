@@ -81,7 +81,7 @@ public class SecurityConfig {
         CorsConfiguration config = new CorsConfiguration();
 
         if (List.of(env.getActiveProfiles()).contains("prod")) {
-            config.setAllowedOrigins(List.of("http://localhost:3000")); // 프론트 도메인 추후 설정
+            config.setAllowedOrigins(List.of("http://localhost:3000","http://goows.netlify.app","https://goows.netlify.app")); // 프론트 도메인 추후 설정
         } else {
             config.setAllowedOriginPatterns(List.of("*")); // 테스트용 origin 전체 허용
         }
