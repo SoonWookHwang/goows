@@ -5,6 +5,7 @@
 <head>
     <title>관리자 로그인</title>
 </head>
+
 <body>
 <div layout:fragment="content">
     <div class="card mx-auto shadow" style="max-width: 400px;">
@@ -25,6 +26,9 @@
     </div>
 
     <script>
+        document.addEventListener("DOMContentLoaded",()=>{
+            document.querySelector("#navbar_nav").innerHTML = "";
+        })
         const login = async (e) => {
             e.preventDefault();
             const res = await fetch("/admin/login", {
@@ -38,8 +42,13 @@
             const data = await res.json();
 
             if (res.ok && data.status === "SUCCESS") {
-                localStorage.setItem("accessToken", data.data.tokenInfo.accessToken);
-                localStorage.setItem("refreshToken", data.data.tokenInfo.refreshToken);
+                const accessToken = data.data.tokenInfo.accessToken;
+                const refreshToken = data.data.tokenInfo.refreshToken;
+                console.log("accessToken", accessToken);
+                console.log("refreshToken", refreshToken);
+
+                localStorage.setItem("accessToken", accessToken);
+                localStorage.setItem("refreshToken", refreshToken);
                 alert("로그인 성공");
                 window.location.href = "/admin/status";
             } else {

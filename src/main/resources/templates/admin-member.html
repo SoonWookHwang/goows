@@ -76,14 +76,15 @@
 </head>
 
 <body>
+<div layout:fragment="content">
     <h1>전체 회원 목록</h1>
 
     <div id="statusMessage"></div>
 
     <div class="member-summary">
-        <p><strong>전체 회원 수:</strong> <span id="totalMemberCount" th:text="${totalMemberCount}">0</span>명</p>
-        <p><strong>활성 회원 수:</strong> <span id="activeMemberCount" th:text="${activeMemberCount}">0</span>명</p>
-        <p><strong>비활성 회원 수:</strong> <span id="inactiveMemberCount" th:text="${inactiveMemberCount}">0</span>명</p>
+        <p><strong>전체 회원 수:</strong> <span id="totalMemberCount">0</span>명</p>
+        <p><strong>활성 회원 수:</strong> <span id="activeMemberCount">0</span>명</p>
+        <p><strong>비활성 회원 수:</strong> <span id="inactiveMemberCount">0</span>명</p>
     </div>
 
     <table>
@@ -101,8 +102,8 @@
             </tr>
         </thead>
         <tbody>
-            <tr th:each="member : ${members}">
-                <td th:text="${member.memberId}"></td>
+            <tr th:each="member,index: ${members}">
+                <td th:text="${index.index+1}"></td>
                 <td th:text="${member.username}"></td>
                 <td th:text="${member.nickname}"></td>
                 <!-- <td th:text="${member.password}"></td> -->
@@ -130,13 +131,12 @@
         </tbody>
     </table>
 
-    <p><a href="/admin">어드민 홈으로 돌아가기</a></p>
-
     <script th:inline="javascript">
 
         // 페이지 로드 시 관리자 권한 확인
-        document.addEventListener("DOMContentLoaded", () => {
-            isAdminCheck();
+        document.addEventListener("DOMContentLoaded", async () => {
+            await isAdminCheck();
+            await updateMemberCounts();
         });
 
         // 회원 상태 변경 처리 함수 (fetch API 사용)
@@ -196,11 +196,11 @@
                         memberStatusSpan.className = newIsInactiveState ? 'status-inactive' : 'status-active';
 
                         statusMessageDiv.className = 'message-success';
-                        statusMessageDiv.textContent = data.message || `회원 ${memberUsername} 상태가 성공적으로 ${newStatusText}되었습니다.`;
+                        statusMessageDiv.textContent = `회원 ${memberUsername} 상태가 성공적으로 ${newStatusText}되었습니다.`;
                         statusMessageDiv.style.display = 'block'; // 메시지 표시
 
                         // 회원 수 통계 업데이트 (선택 사항)
-                        // updateMemberCounts();
+                        await updateMemberCounts();
 
                     } else { // HTTP 상태 코드가 2xx가 아닌 경우 (에러)
                         statusMessageDiv.className = 'message-error';
@@ -234,7 +234,6 @@
         // 회원 수 업데이트 함수 (비동기 요청)
         async function updateMemberCounts() {
             try {
-                // ✅ /admin/members/counts 엔드포인트로 변경
                 const url = "/admin/members/counts";
                 const headers = {};
                 const accessToken = localStorage.getItem("accessToken");
@@ -246,6 +245,7 @@
                 const res = await fetch(url, { headers: headers });
                 if (res.ok) {
                     const counts = await res.json();
+                    console.log("counts", counts);
                     document.getElementById('totalMemberCount').textContent = counts.totalMemberCount;
                     document.getElementById('activeMemberCount').textContent = counts.activeMemberCount;
                     document.getElementById('inactiveMemberCount').textContent = counts.inactiveMemberCount;
@@ -257,37 +257,57 @@
             }
         }
 
-        // 관리자 권한 확인 함수 (페이지 로드 시 실행)
         const isAdminCheck = async () => {
             console.log("check admin");
             try {
-                const accessToken = localStorage.getItem("accessToken");
-                const headers = {};
-                if (accessToken) {
-                    headers["Authorization"] = `Bearer ${accessToken}`;
-                }
-
-                const res = await fetch("/admin/check", { headers: headers });
-
+                const res = await fetch("/admin/check",{
+                    headers: {
+                        "Authorization": `Bearer ${localStorage.getItem("accessToken")}`
+                    }
+                });
                 if (res.status === 403) {
                     alert("관리자만 접근 가능합니다.");
                     window.location.href = "/admin/login";
                     return;
                 }
                 if (res.status === 401) {
-                    alert("인증 정보가 없거나 만료되었습니다. 로그인 페이지로 이동합니다.");
+                    alert("시간이 경과되어 로그아웃되었습니다");
                     window.location.href = "/admin/login";
                     return;
                 }
-
                 const data = await res.json();
+                const logout_btn = `
+                     <li class="nav-item">
+                    <a class="nav-link" onclick=logout()>로그아웃</a>
+                    </li>
+                `
+                document.querySelector("#navbar_nav").insertAdjacentHTML("beforeend",logout_btn)
                 console.log("관리자 확인:", data.message);
             } catch (err) {
                 alert("접근 권한 확인 중 오류가 발생했습니다.");
-                // window.location.href = "/admin"; // 또는 적절한 에러 페이지로 리다이렉트
+                window.location.href = "/admin/login";
             }
         };
+        function logout() {
+            fetch('/admin/logout', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                }
+            }).then(response => {
+                if (response.redirected) {
+                    window.location.href = response.url;
+                } else {
+                    localStorage.removeItem("accessToken")
+                    localStorage.removeItem("refreshToken")
+                    window.location.href = "/admin/login"; // 예: 로그아웃 후 이동할 페이지
+                }
+            }).catch(error => {
+                console.error('Logout failed', error);
+            });
+        }
     </script>
+</div>
 </body>
 
 </html>

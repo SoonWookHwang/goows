@@ -62,7 +62,7 @@ public class SecurityConfig {
                                 "/admin/members")
                         .permitAll()
                         .requestMatchers(
-                                "/admin/check", "/admin/toggle-status", "/members/updateStatus/**")
+                                "/admin/check", "/admin/toggle-status", "/members/updateStatus/**","/admin/members/counts")
                         .hasRole("ADMIN")
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

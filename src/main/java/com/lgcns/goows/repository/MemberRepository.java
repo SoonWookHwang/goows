@@ -11,5 +11,6 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
     List<Member> findAll(); // Admin 모든 회원 조회
 
+    Integer countByIsActive(boolean isActive);
 
 }
