@@ -1,40 +1,31 @@
 package com.lgcns.goows.service;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
-import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lgcns.goows.components.kafka.KafkaProducerService;
 import com.lgcns.goows.components.kafka.dto.NewsSearchSendDataDto;
 import com.lgcns.goows.components.naver.HtmlImageParser;
 import com.lgcns.goows.components.naver.NaverApiComponent;
 import com.lgcns.goows.dto.*;
+import com.lgcns.goows.entity.Member;
+import com.lgcns.goows.entity.NewsScrap;
 import com.lgcns.goows.global.exception.CustomException;
 import com.lgcns.goows.global.security.UserDetailsImpl;
 import com.lgcns.goows.repository.MemberRecentlyKeywordRepository;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.lgcns.goows.entity.Member;
-import com.lgcns.goows.entity.NewsScrap;
 import com.lgcns.goows.repository.MemberRepository;
 import com.lgcns.goows.repository.NewsScapRepository;
-
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -49,19 +40,19 @@ public class NewsService {
     private final String NEWS_SEARCH_TOPIC = "news-search-topic";
     private final MemberRecentlyKeywordRepository memberRecentlyKeywordRepository;
 
-    public NaverNewsResponseDto searchNews(UserDetailsImpl userDetails, NewsSearchDto dto){
+    public NaverNewsResponseDto searchNews(UserDetailsImpl userDetails, NewsSearchDto dto) {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             String responseBody = naverApiComponent.getNewsDataFromNaver(dto);
             // 2. JSON → DTO 변환
             NaverNewsResponseDto result = objectMapper.readValue(responseBody, NaverNewsResponseDto.class);
 
-        // 3. 추가 정보 세팅
+            // 3. 추가 정보 세팅
             result.setMemberId(userDetails != null ? userDetails.getMember().getMemberId() : 0L);
             result.setKeyword(dto.getKeyword());
 
             List<NewsResponseDto> list = result.getItems();
-            if(userDetails!=null) {
+            if (userDetails != null) {
                 Member loginUser = userDetails.getMember();
                 list.stream().forEach(nrd -> {
                     boolean isScraped = newsScapRepository
@@ -70,19 +61,22 @@ public class NewsService {
                     nrd.setScraped(isScraped);
                     nrd.setImageUrl(HtmlImageParser.extractHtmlBodyAndImgSrc(nrd.getLink()));
                 });
-                memberRecentlyKeywordService.addRecentlyKeyword(userDetails,dto.getKeyword());
+                memberRecentlyKeywordService.addRecentlyKeyword(userDetails, dto.getKeyword());
+            } else {
+                list.stream().forEach(nrd -> {
+                    nrd.setScraped(false);
+                    nrd.setImageUrl(HtmlImageParser.extractHtmlBodyAndImgSrc(nrd.getLink()));
+                });
             }
-
             //// 검색 시 마다 검색 된 뉴스 리스트를 카프카 프로듀싱 ////
+            Map<String, Object> map = objectMapper.convertValue(result, new TypeReference<>() {});
             String message = objectMapper.writeValueAsString(
-                    NewsSearchSendDataDto.builder().map(objectMapper.convertValue(result, Map.class)).build()
+                NewsSearchSendDataDto.builder().map(map).build()
             );
             kafkaProducerService.sendMessage(NEWS_SEARCH_TOPIC, message);
             ///////////////////////////////////////////////////
             return result;
-        }catch (JsonProcessingException e){
-            throw new CustomException(e.getMessage());
-        } catch (IOException e) {
+        } catch (JsonProcessingException e) {
             throw new CustomException(e.getMessage());
         }
     }
@@ -108,7 +102,7 @@ public class NewsService {
         int limit = dto.getLimit() != null ? dto.getLimit() : 10;
         int page = offset / limit;
         Pageable pageable = PageRequest.of(page, limit);
-        Page<NewsScrap> scrapPages = newsScapRepository.searchNewsScrapsByKeyword(userDetails.getMember(),dto.getKeyword(), pageable);
+        Page<NewsScrap> scrapPages = newsScapRepository.searchNewsScrapsByKeyword(userDetails.getMember(), dto.getKeyword(), pageable);
         return scrapPages;
     }
 }

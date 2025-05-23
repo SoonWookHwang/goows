@@ -1,5 +1,6 @@
 package com.lgcns.goows.service;
 
+import com.lgcns.goows.admin.AdminMemberCountDto;
 import com.lgcns.goows.dto.MemberModifyDto;
 import com.lgcns.goows.dto.MemberRegisterDto;
 import com.lgcns.goows.entity.Member;
@@ -61,4 +62,14 @@ public class MemberService {
     }
 
 
+    public AdminMemberCountDto getMemberCounts() {
+        long totalCount = memberRepository.count();
+        int activeCount = memberRepository.countByIsActive(true);
+        int inactiveCount = memberRepository.countByIsActive(false);
+        AdminMemberCountDto dto = new AdminMemberCountDto();
+        dto.setTotalMemberCount((int) totalCount);
+        dto.setActiveMemberCount(activeCount);
+        dto.setInactiveMemberCount(inactiveCount);
+        return dto;
+    }
 }

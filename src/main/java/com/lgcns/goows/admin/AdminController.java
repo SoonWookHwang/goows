@@ -123,27 +123,20 @@ public class AdminController {
 
     @PostMapping("/members/updateStatus/{memberId}")
     @ResponseBody // 이 메서드는 JSON 응답을 반환할 것이므로 @ResponseBody 추가
-    public String updateMemberActiveStatus(
+    public ResponseEntity<?> updateMemberActiveStatus(
             @PathVariable("memberId") Long memberId,
             @RequestBody Map<String, Boolean> payload, // JSON 객체를 Map으로 받음
-            RedirectAttributes redirectAttributes,
             @AuthenticationPrincipal UserDetailsImpl userDetailsImpl) {
-        try {
-            log.info(userDetailsImpl.getMember().getUsername());
-            // isInactive가 true이면 비활성화, false이면 활성화
-            boolean isInactive = payload.get("isInactive");// 서버에서 실제 isActive 값 계산
-            boolean newIsActive = !isInactive;
+        // isInactive가 true이면 비활성화, false이면 활성화
+        boolean isInactive = payload.get("isInactive");// 서버에서 실제 isActive 값 계산
+        boolean newIsActive = !isInactive;
+        adminMemberService.setMemberActiveStatus(memberId, newIsActive);
+        return ResponseEntity.ok(SuccessResponse.success("수정되었습니다"));
+    }
 
-            adminMemberService.setMemberActiveStatus(memberId, newIsActive);
-
-            redirectAttributes.addFlashAttribute("message",
-                    "회원 ID: " + memberId + " 의 상태가 " + (newIsActive ? "활성화" : "비활성화") + "되었습니다.");
-        } catch (NoSuchElementException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", "오류: " + e.getMessage());
-        } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage", "회원 상태 변경 중 오류가 발생했습니다: " + e.getMessage());
-        }
-        return "redirect:/admin/members";
+    @GetMapping("/members/counts")
+    public ResponseEntity<AdminMemberCountDto> getMemberCounts() {
+        return ResponseEntity.ok(memberService.getMemberCounts());
     }
 
 }

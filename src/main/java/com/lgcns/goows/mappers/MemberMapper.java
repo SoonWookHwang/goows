@@ -13,6 +13,7 @@ public class MemberMapper {
                 .username(dto.getUsername())
                 .password(dto.getPassword())
                 .nickname(dto.getNickname())
+                .isActive(true)
                 .role(dto.isAdmin() ? Role.ROLE_ADMIN : Role.ROLE_USER)
                 .build();
     }
